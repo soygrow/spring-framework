@@ -2,8 +2,8 @@
 > 这是第一篇Spring源码分析，主要是为了找到继续阅读源码的兴趣，了解一个概况同时找了`ignoreDependencyInterface`和`ignoreDependencyType`深入分析了下。
 
 ### 参考链接
-[打开BeanFactory ignoreDependencyInterface方法的正确姿势](https://www.jianshu.com/p/3c7e0608ff1f)
-[BeanFactoryPostProcessor详解 - 愤怒的苹果ext的博客](https://blog.csdn.net/baidu_19473529/article/details/81152109)
+1. [打开BeanFactory ignoreDependencyInterface方法的正确姿势](https://www.jianshu.com/p/3c7e0608ff1f)
+2. [BeanFactoryPostProcessor详解 - 愤怒的苹果ext的博客](https://blog.csdn.net/baidu_19473529/article/details/81152109)
 
 ### 概况
 1. 我们通过一个简单例子切入源码，阅读*spring-bean-test1*，简单了解获取一个`bean`的过程
