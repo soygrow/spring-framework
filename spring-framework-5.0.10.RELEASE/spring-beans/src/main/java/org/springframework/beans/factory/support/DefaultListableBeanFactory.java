@@ -110,6 +110,33 @@ import org.springframework.util.StringUtils;
  * @see #addBeanPostProcessor
  * @see #getBean
  * @see #resolveDependency
+ *
+ *
+ * XmlBeanFactory继承自DefaultListableBeanFacroty，而DefaultListableBeanFactory是整个bean加载的核心部分，
+ * 是Spring注册以及加载bean的默认实现，而对于XmlBeanFactory与DefaultListableBeanFacroy不同的地方其实是在
+ * XmlBeanFactory中使用了自定义的XML读取器XmlBeanDefinitionReader，实现了个性化的BeanDefinitionReader读取，
+ * DefaultListableBeanFactory继承了AbstractAutowireCapableBeanFactory并实现了ConfigurationListableBeanFactory
+ * 以及BeanDefinitionRegistry接口
+ *
+ * 按照下面顺序简单了解下
+ * @see org.springframework.core.AliasRegistry
+ * @see org.springframework.core.SimpleAliasRegistry
+ * @see org.springframework.beans.factory.config.SingletonBeanRegistry
+ * @see org.springframework.beans.factory.BeanFactory
+ * @see org.springframework.beans.factory.support.DefaultSingletonBeanRegistry
+ * @see org.springframework.beans.factory.HierarchicalBeanFactory
+ * @see org.springframework.beans.factory.support.BeanDefinitionRegistry
+ * @see org.springframework.beans.factory.support.FactoryBeanRegistrySupport
+ * @see org.springframework.beans.factory.config.ConfigurableBeanFactory
+ * @see org.springframework.beans.factory.ListableBeanFactory
+ * @see org.springframework.beans.factory.support.AbstractBeanFactory
+ * @see org.springframework.beans.factory.config.AutowireCapableBeanFactory
+ * @see org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory
+ * @see org.springframework.beans.factory.config.ConfigurableListableBeanFactory
+ * @see org.springframework.beans.factory.support.DefaultListableBeanFactory
+ *
+ * 进入到XmlBeanFactory {@link org.springframework.beans.factory.xml.XmlBeanFactory}
+ *
  */
 @SuppressWarnings("serial")
 public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFactory
@@ -187,6 +214,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	/**
 	 * Create a new DefaultListableBeanFactory with the given parent.
 	 * @param parentBeanFactory the parent BeanFactory
+	 *
+	 * 走到这里，继续进入父类AbstractAutowireCapableBeanFactory的构造函数
 	 */
 	public DefaultListableBeanFactory(@Nullable BeanFactory parentBeanFactory) {
 		super(parentBeanFactory);

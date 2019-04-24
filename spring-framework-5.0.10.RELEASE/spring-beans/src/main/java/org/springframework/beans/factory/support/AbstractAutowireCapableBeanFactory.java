@@ -116,6 +116,8 @@ import org.springframework.util.StringUtils;
  * @see RootBeanDefinition
  * @see DefaultListableBeanFactory
  * @see BeanDefinitionRegistry
+ *
+ * 综合AbstractBeanfactory并对接口AutowireCapableBeanFactory进行实现
  */
 public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory
 		implements AutowireCapableBeanFactory {
@@ -164,6 +166,17 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 	/**
 	 * Create a new AbstractAutowireCapableBeanFactory.
+	 *
+	 * XmlBeanFactory构造时会调用这里的构造过程，这里有必要说下ignoreDependencyInterface方法。ignoreDependencyInterface
+	 * 主要功能是忽略给定接口的自动装配功能，那么，这样做的目的是什么？
+	 *
+	 * 举例来说，当A中有属性B，那么当Spring来获取A的Bean的时候，如果其属性B还没有初始化，那么Spring会自动初始化B，这也是Spring
+	 * 中的一个重要特性，但是在某些情况下，B不会被初始化，其中的一种情况就是B实现了BeanNameAware接口。
+	 *
+	 * Spring中是这样介绍的：自动装配时忽略给定的依赖接口，典型应用是通过其他方式解析Application上下文注册依赖，类似于
+	 * BeanFactory通过BeanFactoryAware进行注入或者ApplicationContext通过ApplicationContextAware进行注入。
+	 *
+	 * 可以进入到ignoreDependencyInterface中查看具体实现
 	 */
 	public AbstractAutowireCapableBeanFactory() {
 		super();
@@ -268,6 +281,36 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 * For further types to ignore, invoke this method for each type.
 	 * @see org.springframework.beans.factory.BeanFactoryAware
 	 * @see org.springframework.context.ApplicationContextAware
+	 *
+	 * 先上结果：ignoreDependencyInterface就是为了让对应接口的set方法失效，不能对某个属性进行自动注入
+	 *
+	 * 这里除了下面这个ignoreDependencyInterface方法，还有上面的ignoreDependencyType方法，都是在自动装配的时候
+	 * 忽略某些类，讲忽略的都保存在ignoredDependencyInterfaces以及ignoredDependencyTypes中，这两个都是HashSet，
+	 *
+	 * 比较ignoreDependencyType和ignoreDependencyInterface得看下面两个方法:
+	 * @see #isExcludedFromDependencyCheck
+	 * @see org.springframework.beans.factory.support.AutowireUtils#isSetterDefinedInInterface
+	 *
+	 * 看完这两个方法，应该理解了ignoreDependencyType和ignoreDependencyInterface的区别，但是我们平常使用
+	 * ignoreDependencyType肯定是足够我们使用了
+	 *
+	 * ignoreDependencyInterface作用并不是在自动装配的时候忽略该接口的实现，而实际上是在自动装配的时候忽略该
+	 * 接口实现类中和setter方法入参相同的类型，也就忽略了该接口实现类中存在依赖的外部bean属性的注入（理解）
+	 *
+	 * 这里典型的应用是就是BeanFactoryAware和ApplicationContextAware接口，在其他地方会发现这两句代码：
+	 * ignoreDependencyInterface(ApplicationContextAware.class);
+	 * ignoreDependencyInterface(BeanFactoryAware.class);
+	 * 下面可以看下这两个接口：
+	 * @see org.springframework.context.ApplicationContextAware
+	 * @see org.springframework.beans.factory.BeanFactoryAware
+	 * 这两个接口中都有对应的setter方法，如果使用了ignoreDependencyInterface对应接口，在该接口的实现类中相关属性会
+	 * 在自动装配的时候被忽略，ApplicationContextAware实现类中的applicationContext以及BeanFactoryAware实现类中
+	 * 的beanFactory都会被自动装配忽略
+	 *
+	 * 目标：这样的做法使得ApplicationContextAware和BeanFactoryAware中的ApplicationContext或BeanFactory依赖在
+	 * 自动装配时被忽略，而统一由框架设置依赖
+	 *
+	 * 看到这里可以看具体的例子：ignored-dependency-test
 	 */
 	public void ignoreDependencyInterface(Class<?> ifc) {
 		this.ignoredDependencyInterfaces.add(ifc);
@@ -1502,6 +1545,13 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 * @return whether the bean property is excluded
 	 * @see #ignoreDependencyType(Class)
 	 * @see #ignoreDependencyInterface(Class)
+	 *
+	 * 这个方法的意思就是在给定的bean属性在依赖检测中是否要被排除，假如该方法返回true，也就是在依赖检测中要排除
+	 * 这个bean的属性，在自动装配的时候就要排除。
+	 *
+	 * 从这个方法中可以看出，我们使用ignoredDependencyTypes就可以实现我们想排除的类或接口，那么ignoreDependencyInterface
+	 * 使用用来干嘛的呢，这里就要看下
+	 * @see org.springframework.beans.factory.support.AutowireUtils#isSetterDefinedInInterface
 	 */
 	protected boolean isExcludedFromDependencyCheck(PropertyDescriptor pd) {
 		return (AutowireUtils.isExcludedFromDependencyCheck(pd) ||

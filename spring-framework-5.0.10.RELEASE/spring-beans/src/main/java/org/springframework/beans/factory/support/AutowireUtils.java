@@ -116,6 +116,9 @@ abstract class AutowireUtils {
 	 * @param pd the PropertyDescriptor of the bean property
 	 * @param interfaces the Set of interfaces (Class objects)
 	 * @return whether the setter method is defined by an interface
+	 *
+	 * 首先说下isAssignableFrom是用来判断目标对象是否实现了接口，同时ClassUtils.hasMethod判断一堆接口中
+	 * 有没有某个接口拥有该bean（setter）属性相同参数的setter方法，如果存在就忽略
 	 */
 	public static boolean isSetterDefinedInInterface(PropertyDescriptor pd, Set<Class<?>> interfaces) {
 		Method setter = pd.getWriteMethod();

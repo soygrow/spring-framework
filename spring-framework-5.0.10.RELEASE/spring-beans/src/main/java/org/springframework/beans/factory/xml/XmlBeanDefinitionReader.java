@@ -74,6 +74,17 @@ import org.springframework.util.xml.XmlValidationModeDetector;
  * @see BeanDefinitionRegistry
  * @see org.springframework.beans.factory.support.DefaultListableBeanFactory
  * @see org.springframework.context.support.GenericApplicationContext
+ *
+ * XML配置文件的读取时Spring中重要的功能，因为Spring的大部分功能都是以配置作为切入点的，那么我们可以从
+ * XmlBeanDefinitionReader中梳理一下资源文件读取、解析以及注册的大致脉络
+ *
+ * ResourceLoader：定义资源加载器，主要应用于根据给定的资源文件地址返回对应的Resource
+ * BeanDefinitionReader：主要定义资源文件读取并转换为BeanDefinition的各个功能
+ * EnvironmentCapable：定义获取Environment方法
+ * DocumentLoader：定义从资源文件加载到转换为Document的功能
+ * AbstractBeanDefinitionReader：对EnvironmentCapable、BeanDefinitionReader类定义的功能进行实现
+ * BeanDefinitionDocumentReader：定义读取Document并注册BeanDefinition功能
+ * BeanDefinitionParserDelegate：定义解析Element的各种方法
  */
 public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 

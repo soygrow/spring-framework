@@ -49,6 +49,10 @@ import org.springframework.core.io.Resource;
  * @see XmlBeanDefinitionReader
  * @deprecated as of Spring 3.1 in favor of {@link DefaultListableBeanFactory} and
  * {@link XmlBeanDefinitionReader}
+ *
+ * XmlBeanFactory对DefaultListableBeanFactory类进行扩展，主要用于从XML文档中读取BeanDefinition，
+ * 对于注册以及获取Bean都是从父类DefaultListableBeanFactory继承的方法去实现，而唯独与父类不同的个性化实现
+ * 就是增加了XmlBean类型的reader属性。在XmlBeanFactory中主要使用reader属性对资源文件进行读取和注册。
  */
 @Deprecated
 @SuppressWarnings({"serial", "all"})
@@ -73,6 +77,13 @@ public class XmlBeanFactory extends DefaultListableBeanFactory {
 	 * @param resource XML resource to load bean definitions from
 	 * @param parentBeanFactory parent bean factory
 	 * @throws BeansException in case of loading or parsing errors
+	 *
+	 * 当Resource相关类完成了对配置文件进行封装后，配置文件的读取工作就全权交给XmlBeanDefinitionReader来处理，
+	 * 下面我们来探讨XmlBeanFactory的初始化过程了，XmlBeanFactory初始化有若干办法，Spring中提供了很多构造函数，
+	 * 在这里分析的是使用Resource实例作为构造函数参数的办法
+	 *
+	 * 下面重点分析this.reader.loadBeanDefinitions(resource)，这里处理了加载数据的过程，但是在XmlBeanDefinitionReader
+	 * 加载数据前调用了父类的构造化过程：super(parentBeanFactory)，下面进入到内部看下。
 	 */
 	public XmlBeanFactory(Resource resource, BeanFactory parentBeanFactory) throws BeansException {
 		super(parentBeanFactory);
